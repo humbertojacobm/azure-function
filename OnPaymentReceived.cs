@@ -14,20 +14,23 @@ namespace pluralsightfuncs
     {
         [FunctionName("OnPaymentReceived")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
+            log.LogInformation("Received payments");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            var order = JsonConvert.DeserializeObject<Order>(requestBody);
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            return new OkObjectResult($"Hello, how are you");                
         }
+    }
+
+    public class Order{
+        public string OriderId{get;set;}
+        public string ProductId{get;set;}
+        public string Email{get;set;}
+        public string Price{get;set;}
     }
 }

@@ -15,6 +15,7 @@ namespace pluralsightfuncs
         [FunctionName("OnPaymentReceived")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [Queue("orders")] IAsyncCollector<Order> orderQueue,
             ILogger log)
         {
 
@@ -22,6 +23,7 @@ namespace pluralsightfuncs
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var order = JsonConvert.DeserializeObject<Order>(requestBody);
+            await orderQueue.AddAsync(order);
 
             return new OkObjectResult($"Hello, how are you");                
         }

@@ -16,6 +16,7 @@ namespace pluralsightfuncs
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             [Queue("orders")] IAsyncCollector<Order> orderQueue,
+            [Table("orders")] IAsyncCollector<Order> orderTable,
             ILogger log)
         {
 
@@ -25,12 +26,19 @@ namespace pluralsightfuncs
             var order = JsonConvert.DeserializeObject<Order>(requestBody);
             await orderQueue.AddAsync(order);
 
+            order.PartitionKey = "orders";
+            order.RowKey = order.OrderId;
+            await orderTable.AddAsync(order);
+
             return new OkObjectResult($"Hello, how are you");                
         }
     }
 
     public class Order{
-        public string OriderId{get;set;}
+
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string OrderId{get;set;}
         public string ProductId{get;set;}
         public string Email{get;set;}
         public string Price{get;set;}

@@ -15,7 +15,7 @@ namespace pluralsightfuncs
             ILogger log)
         {
             log.LogInformation($"C# Queue trigger function processed: {order}");
-            ouputBlob.WriteLine($"orderId: {order.OriderId}");
+            ouputBlob.WriteLine($"orderId: {order.OrderId}");
             ouputBlob.WriteLine($"Email: {order.Email}");
             ouputBlob.WriteLine($"ProductId: {order.ProductId}");
             ouputBlob.WriteLine($"PurchaseDate: {DateTime.UtcNow}");

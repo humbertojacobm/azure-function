@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
@@ -9,11 +10,18 @@ namespace pluralsightfuncs
     public static class GenerateLicenseFile
     {
         [FunctionName("GenerateLicenseFile")]
-        public static void Run(
+        public static async Task Run(
             [QueueTrigger("orders", Connection = "AzureWebJobsStorage")]Order order, 
-            [Blob("licenses/{rand-guid}.lic")] TextWriter ouputBlob,
+            IBinder binder,
             ILogger log)
         {
+
+            var ouputBlob = await binder.BindAsync<TextWriter>(
+                new BlobAttribute(blobPath: $"licenses/{order.OrderId}.lic")
+                {
+                    Connection = "AzureWebJobsStorage"
+                });
+
             log.LogInformation($"C# Queue trigger function processed: {order}");
             ouputBlob.WriteLine($"orderId: {order.OrderId}");
             ouputBlob.WriteLine($"Email: {order.Email}");
